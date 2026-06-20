@@ -2,31 +2,52 @@ package com.food.Util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class DBConnection {
-	
-	 private static Connection connection;
-	 
-	private static final String URL = "jdbc:mysql://localhost:3306/food_delivery";
 
-    private static final String USERNAME = "root";
+    private static Connection connection;
 
-    private static final String PASSWORD = "root";
-    
     public static Connection getConnection() {
-    	
-    	try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			
-			connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return connection;
-    	
+
+        try {
+
+            if(connection == null || connection.isClosed()) {
+
+                String host = System.getenv("MYSQLHOST");
+
+                if(host == null) {
+
+                    connection =
+                            DriverManager.getConnection(
+                                    "jdbc:mysql://localhost:3306/food_delivery",
+                                    "root",
+                                    "root");
+                }
+                else {
+
+                    String port = System.getenv("MYSQLPORT");
+                    String database = System.getenv("MYSQLDATABASE");
+                    String user = System.getenv("MYSQLUSER");
+                    String password = System.getenv("MYSQLPASSWORD");
+
+                    String url =
+                            "jdbc:mysql://" +
+                            host + ":" +
+                            port + "/" +
+                            database;
+
+                    connection =
+                            DriverManager.getConnection(
+                                    url,
+                                    user,
+                                    password);
+                }
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return connection;
     }
-    
 }
