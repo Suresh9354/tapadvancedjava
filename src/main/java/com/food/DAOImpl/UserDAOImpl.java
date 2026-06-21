@@ -23,6 +23,7 @@ public class UserDAOImpl implements UserDAO{
 	
 	public UserDAOImpl() {
         connection = DBConnection.getConnection();
+        System.out.println("UserDAOImpl Connection = " + connection);
     }
 	
 	@Override
