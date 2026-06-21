@@ -1,6 +1,7 @@
 package com.food.DAOImpl;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,12 +11,19 @@ import com.food.DAO.UserDAO;
 import com.food.Model.User;
 import com.food.Util.DBConnection;
 
+
+
 public class UserDAOImpl implements UserDAO{
-	private static final Connection connection = DBConnection.getConnection();
+	
+	private  Connection connection;
 	
 	private static final String INSERT_QUERY = "INSERT INTO User(Username,Email,Password,Address,Role) VALUES(?,?,?,?,?)";
 	
 	private static final String GET_USER_BY_EMAIL = "SELECT * FROM User WHERE Email=?";
+	
+	public UserDAOImpl() {
+        connection = DBConnection.getConnection();
+    }
 	
 	@Override
 	public void addUser(User user) {
