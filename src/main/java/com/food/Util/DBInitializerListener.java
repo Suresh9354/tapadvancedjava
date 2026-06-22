@@ -40,15 +40,28 @@ public class DBInitializerListener implements ServletContextListener {
             if ("true".equalsIgnoreCase(dbClean)) {
                 System.out.println("[DBInitializerListener] DB_CLEAN=true environment variable detected. Dropping existing tables for a clean setup...");
                 try (Statement stmt = conn.createStatement()) {
+                    // Disable foreign key checks to prevent drop lockups from other tables (like cartitem)
+                    stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+                    System.out.println("[DBInitializerListener] Foreign key checks temporarily disabled.");
+
                     // Drop tables in order of dependency
                     stmt.execute("DROP TABLE IF EXISTS orderitem, orderitemtable, orderitems");
                     stmt.execute("DROP TABLE IF EXISTS ordertable, orders, `order`");
                     stmt.execute("DROP TABLE IF EXISTS Menu, menu");
                     stmt.execute("DROP TABLE IF EXISTS Restaurant, restaurant");
                     stmt.execute("DROP TABLE IF EXISTS User, user");
-                    System.out.println("[DBInitializerListener] Drop tables completed successfully.");
+                    stmt.execute("DROP TABLE IF EXISTS cartitem, category_images"); // Drop any old leftover tables
+                    
+                    // Re-enable foreign key checks
+                    stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+                    System.out.println("[DBInitializerListener] Drop tables completed successfully and foreign key checks re-enabled.");
                 } catch (Exception e) {
                     System.err.println("[DBInitializerListener] Error dropping tables: " + e.getMessage());
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+                    } catch (Exception ex) {
+                        // ignore
+                    }
                 }
             }
 
