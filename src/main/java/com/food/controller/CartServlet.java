@@ -73,6 +73,15 @@ public class CartServlet extends HttpServlet {
                     restaurantId = Integer.parseInt(restIdParam);
                 }
 
+                // Swiggy logic: Clear previous restaurant items if adding from a different restaurant
+                if (!cart.isEmpty()) {
+                    CartItem firstItem = cart.values().iterator().next();
+                    if (firstItem.getRestaurantId() != restaurantId) {
+                        cart.clear();
+                        session.setAttribute("cartAlert", "Your cart was reset because you added items from a different restaurant.");
+                    }
+                }
+
                 if (cart.containsKey(menuId)) {
                     // Item already in cart → just increment quantity
                     CartItem existing = cart.get(menuId);

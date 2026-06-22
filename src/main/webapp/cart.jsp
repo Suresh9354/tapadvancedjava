@@ -22,6 +22,12 @@
     User loggedInUser = (User) session.getAttribute("loggedInUser");
     int cartCount = 0;
     if (cart != null) cartCount = cart.size();
+
+    int currentRestaurantId = 0;
+    if (cart != null && !cart.isEmpty()) {
+        CartItem firstItem = cart.values().iterator().next();
+        currentRestaurantId = firstItem.getRestaurantId();
+    }
 %>
 
 <!DOCTYPE html>
@@ -321,6 +327,16 @@
 
     <!-- ===== CART LAYOUT ===== -->
     <div class="cart-wrapper">
+        <% 
+            String cartAlert = (String) session.getAttribute("cartAlert");
+            if (cartAlert != null) {
+                session.removeAttribute("cartAlert");
+        %>
+            <div class="alert-banner" style="background: rgba(212, 168, 79, 0.15); border: 1px solid var(--gold); color: var(--gold); padding: 12px 20px; border-radius: var(--radius-md); margin-bottom: 8px; font-size: 14px; grid-column: 1/-1; display: flex; align-items: center; gap: 8px;">
+                ⚠️ <span><%= cartAlert %></span>
+            </div>
+        <% } %>
+
         <% if (cart != null && !cart.isEmpty()) { %>
             <!-- Left Column: Items List -->
             <div class="cart-items-section">
@@ -384,7 +400,7 @@
                 </div>
 
                 <a href="checkout" class="btn btn-primary checkout-btn">Proceed to Checkout →</a>
-                <a href="restaurant" class="btn btn-outline checkout-btn" style="margin-top: 12px;">← Add More Items</a>
+                <a href="menu?RestaurantID=<%= currentRestaurantId %>" class="btn btn-outline checkout-btn" style="margin-top: 12px;">← Add More Items</a>
             </div>
         <% } else { %>
             <!-- Empty Cart State -->

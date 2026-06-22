@@ -13,6 +13,12 @@
     User loggedInUser = (User) session.getAttribute("loggedInUser");
 
     String error = (String) request.getAttribute("error");
+
+    int currentRestaurantId = 0;
+    if (cart != null && !cart.isEmpty()) {
+        CartItem firstItem = cart.values().iterator().next();
+        currentRestaurantId = firstItem.getRestaurantId();
+    }
 %>
 
 <!DOCTYPE html>
@@ -392,6 +398,7 @@
                 <button type="submit" class="btn btn-primary place-order-btn">
                     🎉 Place Order
                 </button>
+                <a href="menu?RestaurantID=<%= currentRestaurantId %>" class="btn btn-outline place-order-btn" style="margin-top: 12px; display: inline-flex; width: 100%;">← Add More Items</a>
 
                 <div class="secure-badge">
                     🔒 Secure Checkout &nbsp;|&nbsp; FoodRush © 2026
