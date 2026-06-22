@@ -14,7 +14,11 @@ import com.food.Util.DBConnection;
 
 public class RestaurantDAOImpl implements RestaurantDAO {
 
-	private Connection con = DBConnection.getConnection();
+	private Connection con;
+	
+	public RestaurantDAOImpl() {
+        con = DBConnection.getConnection();
+    }
 	
 	@Override
 	public void addRestaurant(Restaurant restaurant) {

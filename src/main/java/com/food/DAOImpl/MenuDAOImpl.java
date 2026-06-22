@@ -14,7 +14,11 @@ import java.sql.SQLException;
 
 public class MenuDAOImpl implements MenuDAO{
 	
-	private Connection con = DBConnection.getConnection();
+	private Connection con;
+
+	public MenuDAOImpl() {
+	    con = DBConnection.getConnection();
+	}
 
 	
 	public List<Menu> getMenuByRestaurantId(int restaurantId) {
