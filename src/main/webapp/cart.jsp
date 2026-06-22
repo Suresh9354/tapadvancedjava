@@ -384,6 +384,7 @@
                 </div>
 
                 <a href="checkout" class="btn btn-primary checkout-btn">Proceed to Checkout →</a>
+                <a href="restaurant" class="btn btn-outline checkout-btn" style="margin-top: 12px;">← Add More Items</a>
             </div>
         <% } else { %>
             <!-- Empty Cart State -->
