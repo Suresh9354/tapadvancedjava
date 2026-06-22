@@ -1,0 +1,10 @@
+target/
+build/
+.settings/
+.classpath
+.project
+.git
+.gitignore
+Dockerfile
+schema.sql
+README.md
