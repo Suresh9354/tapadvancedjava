@@ -35,6 +35,23 @@ public class DBInitializerListener implements ServletContextListener {
 
     private void initializeDatabase(Connection conn) {
         try {
+            // Check for DB_CLEAN environment variable to drop and reset tables
+            String dbClean = System.getenv("DB_CLEAN");
+            if ("true".equalsIgnoreCase(dbClean)) {
+                System.out.println("[DBInitializerListener] DB_CLEAN=true environment variable detected. Dropping existing tables for a clean setup...");
+                try (Statement stmt = conn.createStatement()) {
+                    // Drop tables in order of dependency
+                    stmt.execute("DROP TABLE IF EXISTS orderitem, orderitemtable, orderitems");
+                    stmt.execute("DROP TABLE IF EXISTS ordertable, orders, `order`");
+                    stmt.execute("DROP TABLE IF EXISTS Menu, menu");
+                    stmt.execute("DROP TABLE IF EXISTS Restaurant, restaurant");
+                    stmt.execute("DROP TABLE IF EXISTS User, user");
+                    System.out.println("[DBInitializerListener] Drop tables completed successfully.");
+                } catch (Exception e) {
+                    System.err.println("[DBInitializerListener] Error dropping tables: " + e.getMessage());
+                }
+            }
+
             boolean userTableExists = checkTableExists(conn, "User");
             boolean restaurantTableExists = checkTableExists(conn, "Restaurant");
             boolean menuTableExists = checkTableExists(conn, "Menu");
@@ -84,7 +101,7 @@ public class DBInitializerListener implements ServletContextListener {
                         "    Price DECIMAL(10,2) NOT NULL," +
                         "    IsAvailable BOOLEAN DEFAULT TRUE," +
                         "    ImagePath VARCHAR(255)," +
-                        "    FOREIGN KEY (RestaurantID) REFERENCES Restaurant(RestaurantID) ON DELETE CASCADE" +
+                        "    CONSTRAINT fk_menu_restaurant FOREIGN KEY (RestaurantID) REFERENCES Restaurant(RestaurantID) ON DELETE CASCADE" +
                         ")"
                     );
                 }
@@ -100,8 +117,8 @@ public class DBInitializerListener implements ServletContextListener {
                         "    TotalAmount DECIMAL(10,2) NOT NULL," +
                         "    Status VARCHAR(50) DEFAULT 'Pending'," +
                         "    PaymentMethod VARCHAR(50)," +
-                        "    FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE SET NULL," +
-                        "    FOREIGN KEY (RestaurantID) REFERENCES Restaurant(RestaurantID) ON DELETE SET NULL" +
+                        "    CONSTRAINT fk_order_user FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE SET NULL," +
+                        "    CONSTRAINT fk_order_restaurant FOREIGN KEY (RestaurantID) REFERENCES Restaurant(RestaurantID) ON DELETE SET NULL" +
                         ")"
                     );
                 }
@@ -115,8 +132,8 @@ public class DBInitializerListener implements ServletContextListener {
                         "    MenuID INT," +
                         "    Quantity INT NOT NULL," +
                         "    ItemTotal DECIMAL(10,2) NOT NULL," +
-                        "    FOREIGN KEY (OrderID) REFERENCES ordertable(OrderID) ON DELETE CASCADE," +
-                        "    FOREIGN KEY (MenuID) REFERENCES Menu(MenuID) ON DELETE CASCADE" +
+                        "    CONSTRAINT fk_item_order FOREIGN KEY (OrderID) REFERENCES ordertable(OrderID) ON DELETE CASCADE," +
+                        "    CONSTRAINT fk_item_menu FOREIGN KEY (MenuID) REFERENCES Menu(MenuID) ON DELETE CASCADE" +
                         ")"
                     );
                 }
@@ -185,7 +202,7 @@ public class DBInitializerListener implements ServletContextListener {
                 return rs.getInt(1) == 0;
             }
         } catch (Exception e) {
-            // Handle table does not exist by returning true so it attempts to seed
+            // Return true on error so it attempts to seed if check failed
         }
         return true;
     }
